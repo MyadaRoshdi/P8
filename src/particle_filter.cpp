@@ -22,7 +22,7 @@ using namespace std;
 void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	// This function uses Sense noisy position data from the simulator to initialize the particles
 	// Set the number of particles.
-	num_particles = 100;
+	num_particles = 50;
 
 
 	
@@ -225,7 +225,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		* observation by the particle (landmark_in_range)
 		* update the particle weight based on this
 		**************************************************************/
-		double w = INITIAL_WEIGHT;
+		double w = 1.0;
 
 		for (int j = 0; j < map_observations.size(); j++) {
 
