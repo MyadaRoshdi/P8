@@ -116,7 +116,7 @@ public:
 		return is_initialized;
 	}
 
-	void write(std::string filename);
+	
 
 };
 
