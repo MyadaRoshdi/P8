@@ -145,73 +145,108 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   3.33
 	//   http://planning.cs.uiuc.edu/node99.html
 
-	// loop over all particles
-	for (int i = 0; i < num_particles; i++) {
+	// constants used later for calculating the new weights
+	const double stdx = std_landmark[0];
+	const double stdy = std_landmark[1];
+	const double na = 0.5 / (stdx * stdx);
+	const double nb = 0.5 / (stdy * stdy);
+	const double d = sqrt(2.0 * M_PI * stdx * stdy);
 
-		// get the particle x, y and theta
-		double p_x = particles[i].x;
-		double p_y = particles[i].y;
-		double p_theta = particles[i].theta;
+	for (int i = 0; i < NUMBER_OF_PARTICLES; i++) {
 
-		// create a vector to hold the map landmark locations predicted to be within sensor range of the particle
-		vector<LandmarkObs> predictions;
+		const double px = this->particles[i].x;
+		const double py = this->particles[i].y;
+		const double ptheta = this->particles[i].theta;
 
-		// for each map landmark...
-		for (unsigned int j = 0; j < map_landmarks.landmark_list.size(); j++) {
+		vector<LandmarkObs> landmarks_in_range;
+		vector<LandmarkObs> map_observations;
 
-			// get id and x,y coordinates
-			float lm_x = map_landmarks.landmark_list[j].x_f;
-			float lm_y = map_landmarks.landmark_list[j].y_f;
-			int lm_id = map_landmarks.landmark_list[j].id_i;
+		/**************************************************************
+		* STEP 1:
+		* transform each observations to map coordinates
+		* assume observations are made in the particle's perspective
+		**************************************************************/
+		for (int j = 0; j < observations.size(); j++) {
 
-			// only consider landmarks within sensor range of the particle (rather than using the "dist" method considering a circular 
-			// region around the particle, this considers a rectangular region but is computationally faster)
-			if (fabs(lm_x - p_x) <= sensor_range && fabs(lm_y - p_y) <= sensor_range) {
+			const int oid = observations[j].id;
+			const double ox = observations[j].x;
+			const double oy = observations[j].y;
 
-				// append to the predictions vector
-				predictions.push_back(LandmarkObs{ lm_id, lm_x, lm_y });
+			const double transformed_x = px + ox * cos(ptheta) - oy * sin(ptheta);
+			const double transformed_y = py + oy * cos(ptheta) + ox * sin(ptheta);
+
+			LandmarkObs observation = {
+				oid,
+				transformed_x,
+				transformed_y
+			};
+
+			map_observations.push_back(observation);
+		}
+
+		/**************************************************************
+		* STEP 2:
+		* Find map landmarks within the sensor range
+		**************************************************************/
+		for (int j = 0; j < map_landmarks.landmark_list.size(); j++) {
+
+			const int mid = map_landmarks.landmark_list[j].id_i;
+			const double mx = map_landmarks.landmark_list[j].x_f;
+			const double my = map_landmarks.landmark_list[j].y_f;
+
+			const double dx = mx - px;
+			const double dy = my - py;
+			const double error = sqrt(dx * dx + dy * dy);
+
+			if (error < sensor_range) {
+
+				LandmarkObs landmark_in_range = {
+					mid,
+					mx,
+					my
+				};
+
+				landmarks_in_range.push_back(landmark_in_range);
 			}
 		}
 
-		// Create a vector of transformed observations from vehicle coordinates(local) to map coordinates(global)
-		vector<LandmarkObs> transformed_os;
-		for (unsigned int j = 0; j < observations.size(); j++) {
-			double t_x = cos(p_theta)*observations[j].x - sin(p_theta)*observations[j].y + p_x;
-			double t_y = sin(p_theta)*observations[j].x + cos(p_theta)*observations[j].y + p_y;
-			transformed_os.push_back(LandmarkObs{ observations[j].id, t_x, t_y });
+		/**************************************************************
+		* STEP 3:
+		* Associate landmark in range (id) to landmark observations
+		* this function modifies std::vector<LandmarkObs> observations
+		* NOTE: - all landmarks are in map coordinates
+		*       - all observations are in map coordinates
+		**************************************************************/
+		this->dataAssociation(landmarks_in_range, map_observations);
+
+		/**************************************************************
+		* STEP 4:
+		* Compare each observation (by actual vehicle) to corresponding
+		* observation by the particle (landmark_in_range)
+		* update the particle weight based on this
+		**************************************************************/
+		double w = INITIAL_WEIGHT;
+
+		for (int j = 0; j < map_observations.size(); j++) {
+
+			const int oid = map_observations[j].id;
+			const double ox = map_observations[j].x;
+			const double oy = map_observations[j].y;
+
+			const double predicted_x = landmarks_in_range[oid].x;
+			const double predicted_y = landmarks_in_range[oid].y;
+
+			const double dx = ox - predicted_x;
+			const double dy = oy - predicted_y;
+
+			const double a = na * dx * dx;
+			const double b = nb * dy * dy;
+			const double r = exp(-(a + b)) / d;
+			w *= r;
 		}
 
-		// Call dataAssociation on predictions and transformed observations 
-		dataAssociation(predictions, transformed_os);
-
-		// reinititialize weight
-		particles[i].weight = 1.0;
-
-		for (unsigned int j = 0; j < transformed_os.size(); j++) {
-
-			// placeholders for observation and associated prediction coordinates
-			double o_x, o_y, pr_x, pr_y;
-			o_x = transformed_os[j].x;
-			o_y = transformed_os[j].y;
-
-			int associated_prediction = transformed_os[j].id;
-
-			// get the x,y coordinates of the prediction associated with the current observation
-			for (unsigned int k = 0; k < predictions.size(); k++) {
-				if (predictions[k].id == associated_prediction) {
-					pr_x = predictions[k].x;
-					pr_y = predictions[k].y;
-				}
-			}
-
-			// calculate weight for this observation with multivariate Gaussian
-			double s_x = std_landmark[0];
-			double s_y = std_landmark[1];
-			double obs_w = (1 / (2 * M_PI*s_x*s_y)) * exp(-(pow(pr_x - o_x, 2) / (2 * pow(s_x, 2)) + (pow(pr_y - o_y, 2) / (2 * pow(s_y, 2)))));
-
-			// product of this obersvation weight with total observations weight
-			particles[i].weight *= obs_w;
-		}
+		this->particles[i].weight = w;
+		this->weights[i] = w;
 	}
 }
 
