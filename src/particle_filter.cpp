@@ -244,6 +244,10 @@ void ParticleFilter::resample() {
 	// NOTE: You may find std::discrete_distribution helpful here.
 	//   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
 
+
+	// Create a random generator
+	default_random_engine gen;
+
 	vector<Particle> new_particles;
 
 	// get all of the current weights
