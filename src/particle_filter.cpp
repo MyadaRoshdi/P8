@@ -152,7 +152,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	const double nb = 0.5 / (stdy * stdy);
 	const double d = sqrt(2.0 * M_PI * stdx * stdy);
 
-	for (int i = 0; i < NUMBER_OF_PARTICLES; i++) {
+	for (int i = 0; i < num_particles; i++) {
 
 		const double px = this->particles[i].x;
 		const double py = this->particles[i].y;
