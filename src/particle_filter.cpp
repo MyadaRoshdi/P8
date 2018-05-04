@@ -71,10 +71,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 	// Create a random generator
 	default_random_engine gen;
 
-	// define normal distributions for sensor noise around the sensed values of x,y & theta
-	normal_distribution<double> N_x(x, std_pos[0]);
-	normal_distribution<double> N_y(y, std_pos[1]);
-	normal_distribution<double> N_theta(theta, std_pos[2]);
+	
 
 	for (int i = 0; i < num_particles; i++) {
 
@@ -125,7 +122,7 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 			double distance = dist(observations[i].x, observations[i].y, predicted[i].x, predicted[i].y);
 			// find nearest neigbor and associate to the predicted landmark 
 			if (distance < smallest_dist) {
-				smallest _j = j;
+				smallest_j = j;
 				map_id = predicted[i].id;
 			}
 		}
