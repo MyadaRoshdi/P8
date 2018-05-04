@@ -105,9 +105,9 @@ public:
 		                     const std::vector<double>& sense_x, const std::vector<double>& sense_y);
 
 	
-	std::string getAssociations(Particle best);
-	std::string getSenseX(Particle best);
-	std::string getSenseY(Particle best);
+	//std::string getAssociations(Particle best);
+	//std::string getSenseX(Particle best);
+	//std::string getSenseY(Particle best);
 
 	/**
 	* initialized Returns whether particle filter is initialized yet or not.
@@ -115,7 +115,11 @@ public:
 	const bool initialized() const {
 		return is_initialized;
 	}
+
+	void write(std::string filename);
+
 };
+
 
 
 

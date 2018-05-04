@@ -128,7 +128,8 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted, vector<Landm
 *   3. find which landmark is likely being observed based on `nearest neighbor` method
 *   4. determine the weights based on the difference particle's observation and actual observation
 ***************************************************************/
-void ParticleFilter::updateWeights(double sensor_range, double std_landmark[], std::vector<LandmarkObs> observations, Map map_landmarks) {
+void ParticleFilter::updateWeights(double sensor_range, double std_landmark[], const std::vector<LandmarkObs> &observations,
+	const Map &map_landmarks) {
 
 	// constants used later for calculating the new weights
 	const double stdx = std_landmark[0];
