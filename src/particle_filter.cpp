@@ -145,11 +145,13 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   3.33
 	//   http://planning.cs.uiuc.edu/node99.html
 
+	// Use the sum of weights to Normalize all weights values as suggested
+	double weight_sum = 0.0;
+
 	// loop over all the particles
 	for (int i = 0; i < num_particles; i++) {
 
-		// Use the sum of weights to Normalize all weights values as suggested
-		double weight_sum = 0.0;
+		
 
 		// get the particle x, y coordinates (In map co-ordinates)
 		double p_x = particles[i].x;
@@ -219,7 +221,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	}
 
 	// Normalize all weight values
-	for (int k = 0; k < particles.size(); K++)
+	for (int k = 0; k < particles.size(); k++)
 	{
 		particles[k].weight = particles[k].weight / weight_sum;
 	}
