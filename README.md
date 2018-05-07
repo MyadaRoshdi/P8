@@ -1,13 +1,32 @@
-# Overview
-This repository contains all the code needed to complete the final project for the Localization course in Udacity's Self-Driving Car Nanodegree.
-
-#### Submission
-All you will submit is your completed version of `particle_filter.cpp`, which is located in the `src` directory. You should probably do a `git pull` before submitting to verify that your project passes the most up-to-date version of the grading code (there are some parameters in `src/main.cpp` which govern the requirements on accuracy and run time.)
 
 ## Project Introduction
 Your robot has been kidnapped and transported to a new location! Luckily it has a map of this location, a (noisy) GPS estimate of its initial location, and lots of (noisy) sensor and control data.
 
-In this project you will implement a 2 dimensional particle filter in C++. Your particle filter will be given a map and some initial localization information (analogous to what a GPS would provide). At each time step your filter will also get observation and control data. 
+In this project I was able to implement a 2 dimensional particle filter in C++, given a map and some initial localization information (analogous to what a GPS would provide). At each time step my filter will also get observation and control data from the simulator. 
+
+[//]: # (Image References)
+
+[image0]: ./imgs/data_transmission.jpg "data_transmission"
+[image1]: ./imgs/particle_filter.jpg "particle_filter"
+[image2]: ./imgs/resampling_wheel.jpg "resampling_wheel"
+[image3]: ./imgs/P_filer.gif "P_filer"
+
+
+## Communication between Simulator and Code script
+
+![code_simulator][image0]
+
+## Particle filter Algorithm flow 
+
+![particle_filter][image1]
+
+## Sample of simulator Output
+
+![P_filer][image3]
+
+## Resampling wheel Pseudo-code
+
+![resampling_wheel][image2]
 
 ## Running the Code
 This project involves the Term 2 Simulator which can be downloaded [here](https://github.com/udacity/self-driving-car-sim/releases)
@@ -81,8 +100,8 @@ OUTPUT: values provided by the c++ program to the simulator
 
 ["best_particle_sense_y"] <= list of sensed y positions
 
-
-Your job is to build out the methods in `particle_filter.cpp` until the simulator output says:
+# Code Passing criteria
+The methods in `particle_filter.cpp` should makes the simulator output says:
 
 ```
 Success! Your particle filter passed!
@@ -112,9 +131,6 @@ root
     |   particle_filter.h
 ```
 
-The only file you should modify is `particle_filter.cpp` in the `src` directory. The file contains the scaffolding of a `ParticleFilter` class and some associated methods. Read through the code, the comments, and the header file `particle_filter.h` to get a sense for what this code is expected to do.
-
-If you are interested, take a look at `src/main.cpp` as well. This file contains the code that will actually be running your particle filter and calling the associated methods.
 
 ## Inputs to the Particle Filter
 You can find the inputs to the particle filter in the `data` directory. 
@@ -138,9 +154,6 @@ The things the grading code is looking for are:
 1. **Accuracy**: your particle filter should localize vehicle position and yaw to within the values specified in the parameters `max_translation_error` and `max_yaw_error` in `src/main.cpp`.
 
 2. **Performance**: your particle filter should complete execution within the time of 100 seconds.
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
 
 
 
