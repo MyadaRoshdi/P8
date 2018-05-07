@@ -107,7 +107,7 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 	//   implement this method and use it as a helper during the updateWeights phase.
 	
 
-	double max_dist_value = 1.0e99; // initialize with big number (infiniti)
+	double max_dist_value = 99999999999999; // initialize with big number (infiniti)
 
 	for (int i = 0; i < observations.size(); i++)
 	{
