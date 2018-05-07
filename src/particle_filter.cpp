@@ -22,7 +22,7 @@ using namespace std;
 void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	// This function uses Sense noisy position data from the simulator to initialize the particles
 	// Set the number of particles.
-	num_particles = 50;
+	num_particles = 100;
 
 
 	
@@ -214,7 +214,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	}
 }
 
-
+/*
 void ParticleFilter::resample() {
 	//  Resample particles with replacement with probability proportional to their weight. 
 	// NOTE: You may find std::discrete_distribution helpful here.
@@ -236,10 +236,11 @@ void ParticleFilter::resample() {
 	particles = resampled_particles;
 }
 
+*/
 
-/*
-void ParticleFilter::resample() {
-	// TODO: Resample particles with replacement with probability proportional to their weight. 
+void ParticleFilter::resample() 
+{
+	// Resample particles with replacement with probability proportional to their weight (Using Resample wheel Lesson13-20). 
 	// NOTE: You may find std::discrete_distribution helpful here.
 	//   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
 
@@ -247,39 +248,43 @@ void ParticleFilter::resample() {
 	// Create a random generator
 	default_random_engine gen;
 
-	vector<Particle> new_particles;
+	// create vector resampled_particles to carry the new list of particles
+	vector<Particle> resampled_particles;
 
-	// get all of the current weights
-	vector<double> weights;
-	for (int i = 0; i < num_particles; i++) {
-		weights.push_back(particles[i].weight);
+	// create a vector W to carry all the current particles weights
+	vector<double> W;
+	for (int i = 0; i < num_particles; i++)
+	{
+		W.push_back(particles[i].weight);
 	}
 
-	// generate random starting index for resampling wheel
+	// initialize the index for resampling wheel using uniform distribution (index = U[0.....N-1))
 	uniform_int_distribution<int> uniintdist(0, num_particles - 1);
-	auto index = uniintdist(gen);
+	int index = uniintdist(gen);
 
-	// get max weight
-	double max_weight = *max_element(weights.begin(), weights.end());
+	// find max weight
+	double max_weight = *max_element(W.begin(), W.end());
 
-	// uniform random distribution [0.0, max_weight)
+	// uniform random distribution around the max_weight
 	uniform_real_distribution<double> unirealdist(0.0, max_weight);
 
 	double beta = 0.0;
 
-	// spin the resample wheel!
-	for (int i = 0; i < num_particles; i++) {
-		beta += unirealdist(gen) * 2.0;
-		while (beta > weights[index]) {
-			beta -= weights[index];
+	// Use resampling wheel
+	for (int i = 0; i < num_particles; i++)
+	{
+		beta = beta + unirealdist(gen) * 2.0;
+		while (W[index] < beta)
+		{
+			beta -= W[index];
 			index = (index + 1) % num_particles;
 		}
-		new_particles.push_back(particles[index]);
+		resampled_particles.push_back(particles[index]);
 	}
 
-	particles = new_particles;
+	particles = resampled_particles;
 }
-*/
+
 
 Particle ParticleFilter::SetAssociations(Particle& particle, const std::vector<int>& associations, 
                                      const std::vector<double>& sense_x, const std::vector<double>& sense_y)
