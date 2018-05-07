@@ -119,11 +119,11 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 		for (int j = 0; j < predicted.size(); j++) {
 
 			// calculate Euclidean distance between predicted landmarks(predicted) and true land marks
-			double distance = dist(observations[i].x, observations[i].y, predicted[i].x, predicted[i].y);
+			double distance = dist(observations[i].x, observations[i].y, predicted[j].x, predicted[j].y);
 			// find nearest neigbor and associate to the predicted landmark 
 			if (distance < smallest_dist) {
-				smallest_j = j;
-				map_id = predicted[i].id;
+				smallest_dist = distance;
+				map_id = predicted[j].id;
 			}
 		}
 		observations[i].id = map_id;
