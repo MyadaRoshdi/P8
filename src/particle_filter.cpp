@@ -148,6 +148,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	// loop over all the particles
 	for (int i = 0; i < num_particles; i++) {
 
+		// Use the sum of weights to Normalize all weights values as suggested
+		double weight_sum = 0.0;
+
 		// get the particle x, y coordinates (In map co-ordinates)
 		double p_x = particles[i].x;
 		double p_y = particles[i].y;
@@ -188,7 +191,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 		for (unsigned int j = 0; j < transformed_os.size(); j++) {
 
-			// placeholders for observation and associated prediction coordinates
+			// rename observation and associated prediction coordinates
 			double o_x, o_y, pr_x, pr_y;
 			o_x = transformed_os[j].x;
 			o_y = transformed_os[j].y;
@@ -208,9 +211,17 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			double s_y = std_landmark[1];
 			double obs_w = (1 / (2 * M_PI*s_x*s_y)) * exp(-(pow(pr_x - o_x, 2) / (2 * pow(s_x, 2)) + (pow(pr_y - o_y, 2) / (2 * pow(s_y, 2)))));
 
-			// product of this obersvation weight with total observations weight
+			// Total observations weight is product of all observation weights
 			particles[i].weight *= obs_w;
 		}
+
+		weight_sum += particles[i].weight;
+	}
+
+	// Normalize all weight values
+	for (int k = 0; k < particles.size(); K++)
+	{
+		particles[k].weight = particles[k].weight / weight_sum;
 	}
 }
 
